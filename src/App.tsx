@@ -110,7 +110,7 @@ function App() {
           <div className='hidden md:block w-[1px] h-14 bg-gray-200'></div>
           <div className='h-full md:gap-2 flex flex-col items-center justify-center md:items-start md:justify-start md:w-1/5'>
             <span className='text-[0.5rem] text-gray-500 font-semibold'>TIMEZONE</span>
-            <span className='font-semibold text-lg'>{data.timezone}</span>
+            <span className='font-semibold text-lg'>UTC {data.timezone}</span>
           </div>
           <div className='hidden md:block w-[1px] h-14 bg-gray-200'></div>
           <div className='h-full md:gap-2 flex flex-col items-center justify-center md:items-start md:justify-start md:w-1/5'>
