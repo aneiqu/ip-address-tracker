@@ -10,5 +10,9 @@
   --DarkGray: hsl(0, 0%, 59%);
 }
 body {
-  background: #000;
+  background: white;
+}
+.leaflet-container {
+  height: 100%;
+  z-index: 1;
 }
