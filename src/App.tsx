@@ -79,7 +79,7 @@ function App() {
   return (
     <div className='w-screen h-screen relative'>
       <div
-        className={`w-full  h-1/4 flex items-center flex-col bg-patternBgMobile md:bg-patternBgDesktop bg-no-repeat bg-bottom bg-cover relative`}
+        className={`w-full h-1/4 md:min-h-[260px] flex items-center flex-col bg-patternBgMobile md:bg-patternBgDesktop bg-no-repeat bg-bottom bg-cover relative`}
       >
         <div className='flex flex-col gap-6 w-full justify-start items-center p-4'>
           <h1 className='font-semibold text-3xl text-white text-center'>IP Address Tracker</h1>
