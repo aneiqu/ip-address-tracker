@@ -1,10 +1,11 @@
-import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import arrow from "./assets/images/icon-arrow.svg";
-
 import axios from "axios";
+import { Icon } from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "./App.css";
+import arrow from "./assets/images/icon-arrow.svg";
+import localizationIcon from "./assets/images/localization-icon.png";
 
 type ipData = {
   ip: string;
@@ -27,6 +28,11 @@ function App() {
   });
 
   const mapRef = useRef<any>(null);
+
+  const customIcon = new Icon({
+    iconUrl: localizationIcon,
+    iconSize: [38, 38],
+  });
 
   async function fetchUserIP() {
     try {
@@ -119,7 +125,7 @@ function App() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           />
-          <Marker position={[data.lat, data.lng]}>
+          <Marker icon={customIcon} position={[data.lat, data.lng]}>
             <Popup>Right here</Popup>
           </Marker>
         </MapContainer>
