@@ -3,13 +3,14 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import arrow from "./assets/images/icon-arrow.svg";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 type ipData = {
   ip: string;
   location: string;
-  latlng: Array<number>;
+  lat: number;
+  lng: number;
   timezone: string;
   isp: string;
 };
@@ -19,22 +20,34 @@ function App() {
   const [data, setData] = useState<ipData>({
     ip: "",
     location: "",
-    latlng: [],
+    lat: 0,
+    lng: 0,
     timezone: "",
     isp: "",
   });
 
-  (async function () {
-    const startingIP = (await axios.get("https://api.ipify.org?format=json")).data.ip;
-    searchForIP(startingIP);
-  })();
-  async function searchForIP(ip: string) {
+  const mapRef = useRef<any>(null);
+
+  async function fetchUserIP() {
+    try {
+      const res = await axios.get("https://api.ipify.org?format=json");
+      searchForIP(res.data.ip);
+    } catch (err) {
+      console.error("Error fetching user IP:", err);
+    }
+  }
+
+  async function searchForIP(ip: string | undefined = ipSearchValue) {
     try {
       const answer = await axios.get(
-        `https://geo.ipify.org/api/v2/country,city?apiKey=at_tN6vqB12ker8IkVgsa6ec1GFIvnDF&ipAddress=${
-          ip ? ip : ipSearchValue
-        }`
+        `
+        https://geo.ipify.org/api/v2/country,city?apiKey=at_HU7kXlFZ9IDWNZyYK8XWOTg9cF06s&ipAddress=${ip}`
       );
+
+      if (mapRef.current) {
+        mapRef.current.flyTo([answer.data.location.lat, answer.data.location.lng], 12);
+      }
+
       setData({
         ip: answer.data.ip,
         location:
@@ -43,7 +56,8 @@ function App() {
           answer.data.location.country +
           " " +
           answer.data.location.postalCode,
-        latlng: [answer.data.location.lat, answer.data.location.lng],
+        lat: answer.data.location.lat,
+        lng: answer.data.location.lng,
         timezone: answer.data.location.timezone,
         isp: answer.data.isp.length > 0 ? answer.data.isp : "Not found",
       });
@@ -52,10 +66,14 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    fetchUserIP();
+  }, []);
+
   return (
-    <div className='w-screen h-screen'>
+    <div className='w-screen h-screen relative'>
       <div
-        className={`w-full h-1/3 flex items-center flex-col bg-patternBgMobile md:bg-patternBgDesktop bg-no-repeat bg-bottom bg-cover`}
+        className={`w-full  h-1/4 flex items-center flex-col bg-patternBgMobile md:bg-patternBgDesktop bg-no-repeat bg-bottom bg-cover relative`}
       >
         <div className='flex flex-col gap-6 w-full justify-start items-center p-4'>
           <h1 className='font-semibold text-3xl text-white text-center'>IP Address Tracker</h1>
@@ -66,14 +84,14 @@ function App() {
               placeholder='Search for any IP address or domain'
             ></input>
             <button
-              onClick={searchForIP}
-              className='absolute w-14 h-full right-0  bg-black rounded-r-2xl flex items-center justify-center'
+              onClick={() => searchForIP(ipSearchValue)}
+              className='absolute w-14 h-full right-0  bg-black hover:bg-gray-700 rounded-r-2xl flex items-center justify-center'
             >
               <img className='scale-125' src={arrow}></img>
             </button>
           </div>
         </div>
-        <div className='z-10 md:absolute flex flex-col md:flex-row items-center justify-between md:top-[12.5rem] md:min-h-28 p-6 bg-white  md:w-7/12 md:min-w-[757px] md:max-w-[1000px] rounded-xl gap-3'>
+        <div className='z-10 md:absolute flex flex-col md:flex-row items-center justify-between md:h-28 p-6 bg-white md:w-7/12 -bottom-14 md:min-w-[757px] md:max-w-[1000px] rounded-xl gap-3'>
           <div className='h-full md:gap-2 flex flex-col items-center justify-center md:items-start md:justify-start md:w-1/5'>
             <span className='text-[0.5rem] text-gray-500 font-semibold'>IP ADDRESS</span>
             <span className='font-semibold text-lg'>{data.ip}</span>
@@ -95,13 +113,32 @@ function App() {
           </div>
         </div>
       </div>
-      <div className='h-2/3 w-screen'>
-        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={true}>
+      <div className='h-3/4 w-screen'>
+        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={true} ref={mapRef}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           />
+          <Marker position={[data.lat, data.lng]}>
+            <Popup>Right here</Popup>
+          </Marker>
         </MapContainer>
+      </div>
+
+      <div className='absolute flex bottom-2 z-10 w-full items-center justify-center '>
+        Challenge by
+        <a href='https://www.frontendmentor.io?ref=challenge' target='_blank'>
+          Frontend Mentor
+        </a>
+        . Coded by
+        <a
+          href='https://www.frontendmentor.io/profile/aneiqu'
+          target='_blank'
+          className='text-blue-700 pl-1'
+        >
+          Aneiqu
+        </a>
+        .
       </div>
     </div>
   );
